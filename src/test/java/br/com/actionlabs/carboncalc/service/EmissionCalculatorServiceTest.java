@@ -2,6 +2,7 @@ package br.com.actionlabs.carboncalc.service;
 
 import br.com.actionlabs.carboncalc.dto.*;
 import br.com.actionlabs.carboncalc.enums.TransportationType;
+import br.com.actionlabs.carboncalc.exception.ResourceNotFoundException;
 import br.com.actionlabs.carboncalc.mapper.CalculationDataMapper;
 import br.com.actionlabs.carboncalc.model.CalculationData;
 import br.com.actionlabs.carboncalc.repository.CalculationDataRepository;
@@ -71,12 +72,13 @@ class EmissionCalculatorServiceTest {
         Assertions.assertThat(actualResponse).isEqualTo(expectedResponse);
     }
 
-    private List<TransportationDTO> getTransportationDTOList() {
-        var transportationDTO = new TransportationDTO();
-        transportationDTO.setType(TransportationType.CAR);
-        transportationDTO.setMonthlyDistance(300);
-
-        return List.of(transportationDTO);
+    @Test
+    void testCalculateTotalEmissionsResourceNotFoundException() {
+        var id = "6777098c112b4802c17e318c";
+        Mockito.when(calculationDataRepository.findById(id)).thenReturn(Optional.empty());
+        Assertions.assertThatThrownBy(() -> emissionCalculatorService.getTotalEmissions(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("404 NOT_FOUND \"Calculation data not found for id: " + id + "\"");
     }
 
 }
