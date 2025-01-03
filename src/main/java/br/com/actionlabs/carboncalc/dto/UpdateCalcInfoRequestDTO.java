@@ -11,17 +11,17 @@ import java.util.List;
 @Data
 public class UpdateCalcInfoRequestDTO {
 
-  @NotBlank
+  @NotBlank(message = "Id is mandatory")
   private String id;
-  @NotBlank
+  @NotBlank(message = "Name is mandatory")
   private int energyConsumption;
-  @NotNull
+  @NotNull(message = "Transportation is mandatory")
   private List<TransportationDTO> transportation;
-  @NotBlank
+  @NotBlank(message = "Solid waste total is mandatory")
   private int solidWasteTotal;
-  @NotBlank
-  @DecimalMin("0.0")
-  @DecimalMax("1.0")
+  @NotBlank(message = "Solid waste recyclable is mandatory")
+  @DecimalMin(value = "0.0", message = "Recycle percentage must be between 0 and 1")
+  @DecimalMax(value = "1.0", message = "Recycle percentage must be between 0 and 1")
   private double recyclePercentage;
 
 }

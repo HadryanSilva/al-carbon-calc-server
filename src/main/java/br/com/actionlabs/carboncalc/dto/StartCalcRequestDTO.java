@@ -8,15 +8,15 @@ import lombok.Data;
 @Data
 public class StartCalcRequestDTO {
 
-  @NotBlank
+  @NotBlank(message = "Name is mandatory")
   private String name;
-  @NotBlank
-  @Email(regexp = "^[A-Za-z0-9+_.-]+@(.+)$")
+  @NotBlank(message = "Email is mandatory")
+  @Email(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Invalid email")
   private String email;
-  @NotBlank
-  @Pattern(regexp = "^[A-Z]{2}$")
+  @NotBlank(message = "UF is mandatory")
+  @Pattern(regexp = "^[A-Z]{2}$", message = "Invalid UF")
   private String uf;
-  @NotBlank
+  @NotBlank(message = "Phone number is mandatory")
   private String phoneNumber;
 
 }

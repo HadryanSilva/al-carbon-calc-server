@@ -1,8 +1,10 @@
 package br.com.actionlabs.carboncalc.service;
 
 import br.com.actionlabs.carboncalc.dto.*;
+import br.com.actionlabs.carboncalc.exception.CalculationException;
 import br.com.actionlabs.carboncalc.exception.ResourceNotFoundException;
 import br.com.actionlabs.carboncalc.mapper.CalculationDataMapper;
+import br.com.actionlabs.carboncalc.model.CalculationData;
 import br.com.actionlabs.carboncalc.repository.CalculationDataRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,23 +35,14 @@ public class EmissionCalculatorService {
     public UpdateCalcInfoResponseDTO calculate(UpdateCalcInfoRequestDTO request) {
         var response = new UpdateCalcInfoResponseDTO();
         try {
-            var calculationData = calculationDataRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Calculation data not found for id: " +
-                            request.getId()));
-
-            calculationData.setEnergy(energyCalculatorService
-                    .calculateEnergyEmission(calculationData.getUf(), request));
-
-            calculationData.setSolidWaste(solidWasteCalculatorService
-                    .calculateSolidWasteEmission(calculationData.getUf(), request));
-
-            calculationData.setTransportation(transportationCalculatorService
-                    .calculateTransportationEmission(request));
-
-            calculationDataRepository.save(calculationData);
-            log.info("Calculation data successfully updated");
+            var calculationData = checkIfCalculationDataExists(request.getId());
+            updateCalculationData(calculationData, request);
+            saveCalculationData(calculationData);
             response.setSuccess(true);
-        } catch (RuntimeException e) {
+        } catch (ResourceNotFoundException e) {
+            log.error("Error updating calculation data: {}", e.getMessage());
+            response.setSuccess(false);
+        } catch (CalculationException e) {
             log.error("Error calculating emissions: {}", e.getMessage());
             response.setSuccess(false);
         }
@@ -68,6 +61,22 @@ public class EmissionCalculatorService {
         response.setTotal(total);
 
         return response;
+    }
+
+    private CalculationData checkIfCalculationDataExists(String id) {
+        return calculationDataRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Calculation data not found for id: " + id));
+    }
+
+    private void updateCalculationData(CalculationData data, UpdateCalcInfoRequestDTO request) {
+        data.setEnergy(energyCalculatorService.calculateEnergyEmission(data.getUf(), request));
+        data.setSolidWaste(solidWasteCalculatorService.calculateSolidWasteEmission(data.getUf(), request));
+        data.setTransportation(transportationCalculatorService.calculateTransportationEmission(request));
+    }
+
+    private void saveCalculationData(CalculationData calculationData) {
+        calculationDataRepository.save(calculationData);
+        log.info("Calculation data successfully updated");
     }
 
 }
