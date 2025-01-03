@@ -50,8 +50,7 @@ public class EmissionCalculatorService {
     }
 
     public CarbonCalculationResultDTO getTotalEmissions(String id) {
-        var calculationData = calculationDataRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Calculation data not found for id: " + id));
+        var calculationData = checkIfCalculationDataExists(id);
 
         var total = calculationData.getEnergy() +
                 calculationData.getSolidWaste() +
