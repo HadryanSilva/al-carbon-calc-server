@@ -1,8 +1,11 @@
 package br.com.actionlabs.carboncalc.rest;
 
 import br.com.actionlabs.carboncalc.dto.*;
+import br.com.actionlabs.carboncalc.service.EmissionCalculatorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,20 +15,25 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class OpenRestController {
 
+  private final EmissionCalculatorService emissionCalculatorService;
+
   @PostMapping("start-calc")
   public ResponseEntity<StartCalcResponseDTO> startCalculation(
-      @RequestBody StartCalcRequestDTO request) {
-    throw new RuntimeException("Not implemented");
+      @Valid @RequestBody StartCalcRequestDTO request) {
+    var response = emissionCalculatorService.startCalc(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @PutMapping("info")
   public ResponseEntity<UpdateCalcInfoResponseDTO> updateInfo(
-      @RequestBody UpdateCalcInfoRequestDTO request) {
-    throw new RuntimeException("Not implemented");
+      @Valid @RequestBody UpdateCalcInfoRequestDTO request) {
+    var response = emissionCalculatorService.calculate(request);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("result/{id}")
   public ResponseEntity<CarbonCalculationResultDTO> getResult(@PathVariable String id) {
-    throw new RuntimeException("Not implemented");
+    var response = emissionCalculatorService.getTotalEmissions(id);
+    return ResponseEntity.ok(response);
   }
 }
