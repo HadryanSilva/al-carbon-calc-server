@@ -10,4 +10,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class TransportationEmissionFactor {
   @Id private TransportationType type;
   private double factor;
+
+    public TransportationEmissionFactor() {}
+
+    public TransportationEmissionFactor(TransportationType type, double factor) {
+        this.type = type;
+        this.factor = factor;
+    }
+
 }

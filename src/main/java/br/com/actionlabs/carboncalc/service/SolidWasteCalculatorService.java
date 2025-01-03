@@ -18,7 +18,7 @@ public class SolidWasteCalculatorService {
     public Integer calculateSolidWasteEmission(String uf, UpdateCalcInfoRequestDTO dto) {
         log.info("Calculating solid waste emission for UF: {}", uf);
         var factor = solidWasteEmissionFactorRepository.findByUf(uf)
-                .orElseThrow(() -> new ResourceNotFoundException("UF not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Solid waste emission factor not found for uf: " + uf));
         return (int) (calculateRecyclableWasteEmission(factor, dto) +
                 calculateNonRecyclableWasteEmission(factor, dto));
     }
