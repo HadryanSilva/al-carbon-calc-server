@@ -38,9 +38,32 @@ dependencies {
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mongodb")
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+dependencyManagement {
+    imports {
+        mavenBom("org.testcontainers:testcontainers-bom:1.20.4")
+    }
+}
+
+tasks.test {
     useJUnitPlatform()
+    include '**/*Test.class'
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+    }
+}
+
+tasks.register('integrationTest', Test) {
+    useJUnitPlatform()
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    include '**/*IT.class'
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+    }
+    shouldRunAfter(tasks.test)
 }

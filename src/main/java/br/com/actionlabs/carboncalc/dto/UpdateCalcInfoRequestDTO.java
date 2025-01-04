@@ -13,13 +13,13 @@ public class UpdateCalcInfoRequestDTO {
 
   @NotBlank(message = "Id is mandatory")
   private String id;
-  @NotBlank(message = "Name is mandatory")
+  @NotNull(message = "Name is mandatory")
   private int energyConsumption;
   @NotNull(message = "Transportation is mandatory")
   private List<TransportationDTO> transportation;
-  @NotBlank(message = "Solid waste total is mandatory")
+  @NotNull(message = "Solid waste total is mandatory")
   private int solidWasteTotal;
-  @NotBlank(message = "Solid waste recyclable is mandatory")
+  @NotNull(message = "Solid waste recyclable is mandatory")
   @DecimalMin(value = "0.0", message = "Recycle percentage must be between 0 and 1")
   @DecimalMax(value = "1.0", message = "Recycle percentage must be between 0 and 1")
   private double recyclePercentage;
