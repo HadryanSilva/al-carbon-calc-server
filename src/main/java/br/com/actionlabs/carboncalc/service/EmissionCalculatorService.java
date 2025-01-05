@@ -9,6 +9,7 @@ import br.com.actionlabs.carboncalc.repository.CalculationDataRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -32,6 +33,7 @@ public class EmissionCalculatorService {
         return response;
     }
 
+    @Transactional
     public UpdateCalcInfoResponseDTO calculate(UpdateCalcInfoRequestDTO request) {
         var response = new UpdateCalcInfoResponseDTO();
         try {

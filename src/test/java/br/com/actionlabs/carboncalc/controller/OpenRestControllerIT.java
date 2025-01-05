@@ -4,10 +4,7 @@ import br.com.actionlabs.carboncalc.config.IntegrationTestContainers;
 import br.com.actionlabs.carboncalc.dto.*;
 import br.com.actionlabs.carboncalc.enums.TransportationType;
 import br.com.actionlabs.carboncalc.utils.FileUtils;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -32,10 +29,11 @@ public class OpenRestControllerIT {
     @Autowired
     private FileUtils fileUtils;
 
-    private String id;
+    private static String ID;
 
     @Test
     @Order(1)
+    @DisplayName("Start calculation successfully")
     void testStartCalcSuccessfully() {
         var requestData = new StartCalcRequestDTO();
         requestData.setName("Teste");
@@ -46,7 +44,7 @@ public class OpenRestControllerIT {
         var entity = new HttpEntity<>(requestData);
 
         var response = restTemplate.postForEntity(BASE_URL + "/start-calc", entity, StartCalcResponseDTO.class);
-        id = response.getBody().getId();
+        ID = response.getBody().getId();
         assertThat(response.getStatusCode().value()).isEqualTo(201);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getId()).isNotBlank();
@@ -54,6 +52,7 @@ public class OpenRestControllerIT {
 
     @Test
     @Order(2)
+    @DisplayName("Start calculation throws bad request")
     void testStartCalcThrowsBadRequest() throws IOException {
         var requestData = new StartCalcRequestDTO();
         requestData.setName("");
@@ -67,14 +66,15 @@ public class OpenRestControllerIT {
 
         assertThat(response.getStatusCode().value()).isEqualTo(400);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).isEqualTo(fileUtils.readResourceFile("start-calc-bad-request.json"));
+        assertThat(response.getBody()).isEqualTo(fileUtils.readResourceFile("start-calc-bad-response.json"));
     }
 
     @Test
     @Order(3)
+    @DisplayName("Update info successfully")
     void updateInfoSuccessfully() {
         var requestData = new UpdateCalcInfoRequestDTO();
-        requestData.setId(id);
+        requestData.setId(ID);
         requestData.setEnergyConsumption(250);
         requestData.setSolidWasteTotal(250);
         requestData.setRecyclePercentage(0.5);
@@ -92,9 +92,10 @@ public class OpenRestControllerIT {
 
     @Test
     @Order(3)
+    @DisplayName("Update info throws bad request")
     void updateInfoThrowsBadRequest() throws IOException {
         var requestData = new UpdateCalcInfoRequestDTO();
-        requestData.setId(id);
+        requestData.setId(ID);
         requestData.setEnergyConsumption(120);
         requestData.setSolidWasteTotal(50);
         requestData.setRecyclePercentage(1.2); // invalid value, should be between 0 and 1
@@ -107,7 +108,32 @@ public class OpenRestControllerIT {
 
         assertThat(response.getStatusCode().value()).isEqualTo(400);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).isEqualTo(fileUtils.readResourceFile("update-info-bad-request.json"));
+        assertThat(response.getBody()).isEqualTo(fileUtils.readResourceFile("update-info-bad-response.json"));
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Get result successfully")
+    void testGetResultSuccessfully() {
+        var response = restTemplate.getForEntity(BASE_URL + "/result/" + ID, CarbonCalculationResultDTO.class);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(200);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getEnergy()).isEqualTo(120);
+        assertThat(response.getBody().getSolidWaste()).isEqualTo(171);
+        assertThat(response.getBody().getTransportation()).isEqualTo(71);
+        assertThat(response.getBody().getTotal()).isEqualTo(362);
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Get result throws not found")
+    void testGetResultThrowsNotFound() throws IOException {
+        var response = restTemplate.getForEntity(BASE_URL + "/result/123", String.class);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(404);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).isEqualTo(fileUtils.readResourceFile("get-result-not-found-response.json"));
     }
 
     private List<TransportationDTO> getTransportationDTOList() {
