@@ -17,6 +17,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * This test are made to run in a containerized environment,
+ * so it will start a container with the database and run the tests.
+ * Tests run individually may fail because of the database state
+ *
+ * @author Hadryan Silva
+ * @since 03-01-2025
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({IntegrationTestContainers.class})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
